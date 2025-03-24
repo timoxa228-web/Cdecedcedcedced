@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Компонент регистрации
+        const Register = () => {
+            const [formData, setFormData] = React.useState({
+                username: '',
+                email: '',
+                password: ''
+            });
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    // Здесь будет логика регистрации
+                    alert('Регистрация');
+                } catch (error) {
+                    alert('Ошибка регистрации');
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-xl shadow-2xl w-96">
+                        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Регистрация</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Имя пользователя"
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition"
+                            >
+                                Зарегистрироваться
+                            </button>
+                        </form>
+                        <div className="mt-4 text-center">
+                            <a href="#login" className="text-blue-500 hover:underline">
+                                Уже есть аккаунт? Войти
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Компонент входа
+        const Login = () => {
+            const [formData, setFormData] = React.useState({
+                username: '',
+                password: ''
+            });
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    // Здесь будет логика входа
+                    alert('Вход');
+                } catch (error) {
+                    alert('Ошибка входа');
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-xl shadow-2xl w-96">
+                        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Вход</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Имя пользователя"
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition"
+                            >
+                                Войти
+                            </button>
+                        </form>
+                        <div className="mt-4 text-center">
+                            <a href="#register" className="text-blue-500 hover:underline">
+                                Создать аккаунт
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Главный компонент приложения
+        const App = () => {
+            const [currentPage, setCurrentPage] = React.useState('login');
+
+            React.useEffect(() => {
+                const handleHashChange = () => {
+                    const hash = window.location.hash.substring(1);
+                    if (hash === 'register' || hash === 'login') {
+                        setCurrentPage(hash);
+                    }
+                };
+
+                window.addEventListener('hashchange', handleHashChange);
+                handleHashChange();
+
+                return () => {
+                    window.removeEventListener('hashchange', handleHashChange);
+                };
+            }, []);
+
+            return (
+                <div>
+                    {currentPage === 'login' ? <Login /> : <Register />}
+                </div>
+            );
+        };
+
+        // Рендеринг приложения
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
