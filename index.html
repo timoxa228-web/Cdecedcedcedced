@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Состояние аутентификации
+        const AuthContext = React.createContext(null);
+
+        // Компонент провайдера аутентификации
+        const AuthProvider = ({ children }) => {
+            const [user, setUser] = React.useState(null);
+
+            const login = (userData) => {
+                setUser(userData);
+                localStorage.setItem('user', JSON.stringify(userData));
+            };
+
+            const logout = () => {
+                setUser(null);
+                localStorage.removeItem('user');
+            };
+
+            React.useEffect(() => {
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    setUser(JSON.parse(storedUser));
+                }
+            }, []);
+
+            return (
+                <AuthContext.Provider value={{ user, login, logout }}>
+                    {children}
+                </AuthContext.Provider>
+            );
+        };
+
+        // Компонент регистрации
+        const Register = () => {
+            const [formData, setFormData] = React.useState({
+                username: '',
+                email: '',
+                password: ''
+            });
+            const { login } = React.useContext(AuthContext);
+            const [error, setError] = React.useState(null);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    // Имитация регистрации 
+                    const userData = {
+                        id: Date.now(),
+                        username: formData.username,
+                        email: formData.email
+                    };
+                    login(userData);
+                    window.location.hash = 'feed';
+                } catch (error) {
+                    setError('Ошибка регистрации');
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-xl shadow-2xl w-96">
+                        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Регистрация</h2>
+                        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Имя пользователя"
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition"
+                            >
+                                Зарегистрироваться
+                            </button>
+                        </form>
+                        <div className="mt-4 text-center">
+                            <a href="#login" className="text-blue-500 hover:underline">
+                                Уже есть аккаунт? Войти
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Компонент входа
+        const Login = () => {
+            const [formData, setFormData] = React.useState({
+                username: '',
+                password: ''
+            });
+            const { login } = React.useContext(AuthContext);
+            const [error, setError] = React.useState(null);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    // Имитация входа
+                    const userData = {
+                        id: Date.now(),
+                        username: formData.username
+                    };
+                    login(userData);
+                    window.location.hash = 'feed';
+                } catch (error) {
+                    setError('Ошибка входа');
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-xl shadow-2xl w-96">
+                        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Вход</h2>
+                        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Имя пользователя"
+                                value={formData.username}
+                                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Пароль"
+                                value={formData.password}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <button 
+                                type="submit" 
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition"
+                            >
+                                Войти
+                            </button>
+                        </form>
+                        <div className="mt-4 text-center">
+                            <a href="#register" className="text-blue-500 hover:underline">
+                                Создать аккаунт
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Компонент ленты постов
+        const Feed = () => {
+            const { user, logout } = React.useContext(AuthContext);
+            const [posts, setPosts] = React.useState([
+                {
+                    id: 1,
+                    author: 'user1',
+                    title: 'Первый пост в Reddit-клоне',
+                    content: 'Привет всем! Это мой первый пост в нашем клоне Reddit.',
+                    likes: 10,
+                    comments: 5
+                },
+                {
+                    id: 2,
+                    author: 'user2',
+                    title: 'React - это круто!',
+                    content: 'Изучаю React и создаю клон Reddit. Очень интересно!',
+                    likes: 15,
+                    comments: 3
+                }
+            ]);
+
+            const [newPost, setNewPost] = React.useState({
+                title: '',
+                content: ''
+            });
+
+            const handlePostSubmit = (e) => {
+                e.preventDefault();
+                if (!newPost.title || !newPost.content) return;
+
+                const post = {
+                    id: posts.length + 1,
+                    author: user.username,
+                    title: newPost.title,
+                    content: newPost.content,
+                    likes: 0,
+                    comments: 0
+                };
+
+                setPosts([post, ...posts]);
+                setNewPost({ title: '', content: '' });
+            };
+
+            return (
+                <div className="container mx-auto p-4">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-3xl font-bold text-gray-800">
+                            Лента постов
+                        </h1>
+                        <div className="flex items-center space-x-4">
+                            <span className="text-gray-700">
+                                Привет, {user.username}!
+                            </span>
+                            <button 
+                                onClick={logout} 
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                            >
+                                Выйти
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Форма создания поста */}
+                    <form onSubmit={handlePostSubmit} className="bg-white p-6 rounded-xl shadow-md mb-6">
+                        <input 
+                            type="text"
+                            placeholder="Заголовок поста"
+                            value={newPost.title}
+                            onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+                            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <textarea 
+                            placeholder="Текст поста"
+                            value={newPost.content}
+                            onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows="4"
+                            required
+                        />
+                        <button 
+                            type="submit" 
+                            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg hover:opacity-90 transition"
+                        >
+                            Опубликовать
+                        </button>
+                    </form>
+
+                    {/* Список постов */}
+                    <div className="space-y-4">
+                        {posts.map(post => (
+                            <div key={post.id} className="bg-white p-6 rounded-xl shadow-md">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-bold text-gray-800">{post.title}</h2>
+                                    <span className="text-gray-500 text-sm">@{post.author}</span>
+                                </div>
+                                <p className="text-gray-700 mb-4">{post.content}</p>
+                                <div className="flex items-center space-x-4 text-gray-600">
+                                    <button className="flex items-center space-x-1 hover:text-blue-500">
+                                        <span>👍</span>
+                                        <span>{post.likes}</span>
+                                    </button>
+                                    <button className="flex items-center space-x-1 hover:text-green-500">
+                                        <span>💬</span>
+                                        <span>{post.comments}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // Главный компонент приложения
+        const App = () => {
+            const [currentPage, setCurrentPage] = React.useState('login');
+            const { user } = React.useContext(AuthContext);
+
+            React.useEffect(() => {
+                const handleHashChange = () => {
+                    const hash = window.location.hash.substring(1);
+                    if (hash === 'register' || hash === 'login' || hash === 'feed') {
+                        setCurrentPage(hash);
+                    }
+                };
+
+                window.addEventListener('hashchange', handleHashChange);
+                handleHashChange();
+
+                return () => {
+                    window.removeEventListener('hashchange', handleHashChange);
+                };
+            }, []);
+
+            React.useEffect(() => {
+                if (user) {
+                    window.location.hash = 'feed';
+                } else if (!user && currentPage === 'feed') {
+                    window.location.hash = 'login';
+                }
+            }, [user, currentPage]);
+
+            return (
+                <div>
+                    {!user && currentPage === 'login' && <Login />}
+                    {!user && currentPage === 'register' && <Register />}
+                    {user && <Feed />}
+                </div>
+            );
+        };
+
+        // Рендеринг приложения с провайдером аутентификации
+        ReactDOM.render(
+            <AuthProvider>
+                <App />
+            </AuthProvider>, 
+            document.getElementById('root')
+        );
+    </script>
+</body>
+</html>
